@@ -1,12 +1,63 @@
 import * as THREE from "three";
 import { cube, voxelMat } from "./voxels.js";
 
+function loadPhoto(url) {
+  return new Promise((resolve, reject) => {
+    new THREE.TextureLoader().load(
+      url,
+      (texture) => {
+        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.minFilter = THREE.LinearFilter;
+        texture.magFilter = THREE.LinearFilter;
+        texture.needsUpdate = true;
+        resolve(texture);
+      },
+      undefined,
+      reject,
+    );
+  });
+}
+
+function pictureFrame(texture, width, height) {
+  const frame = new THREE.Group();
+  const wood = 0xc89b6d;
+  const stain = 0x8a6544;
+  const rim = 0xf4d7b0;
+  const t = 0.1;
+  const d = 0.14;
+  frame.add(cube(width + t * 2, t, d, wood, [0, height / 2 + t / 2, 0]));
+  frame.add(cube(width + t * 2, t, d, wood, [0, -height / 2 - t / 2, 0]));
+  frame.add(cube(t, height, d, wood, [-width / 2 - t / 2, 0, 0]));
+  frame.add(cube(t, height, d, wood, [width / 2 + t / 2, 0, 0]));
+  frame.add(cube(width + 0.04, height + 0.04, 0.06, stain, [0, 0, 0.02]));
+  frame.add(cube(0.08, 0.08, 0.08, rim, [-width / 2 - t / 2, height / 2 + t / 2, 0.08]));
+  frame.add(cube(0.08, 0.08, 0.08, rim, [width / 2 + t / 2, height / 2 + t / 2, 0.08]));
+  const photo = new THREE.Mesh(
+    new THREE.PlaneGeometry(width, height),
+    voxelMat(0xffffff, { map: texture }),
+  );
+  photo.position.z = 0.08;
+  frame.add(photo);
+  frame.add(cube(width + 0.28, 0.08, 0.18, stain, [0, -height / 2 - t - 0.06, 0.02]));
+  return frame;
+}
+
+function hangOnWall(scene, mesh, angle, height, iglooR) {
+  const ring = Math.sqrt(Math.max(0.4, (iglooR - 0.2) ** 2 - height ** 2));
+  const radius = ring - 0.5;
+  const x = Math.cos(angle) * radius;
+  const z = Math.sin(angle) * radius;
+  mesh.position.set(x, height, z);
+  mesh.rotation.y = Math.atan2(-x, -z);
+  scene.add(mesh);
+}
+
 function add(scene, mesh) {
   scene.add(mesh);
   return mesh;
 }
 
-export function createWorld(scene) {
+export async function createWorld(scene) {
   const iglooR = 8.2;
   const interactables = [];
   const block = 0.52;
@@ -149,6 +200,15 @@ export function createWorld(scene) {
     radius: 1.5,
     envelope,
   });
+
+  const photos = await Promise.all([
+    loadPhoto("assets/val-fighter.png"),
+    loadPhoto("assets/val-bow.png"),
+    loadPhoto("assets/val-corner.png"),
+  ]);
+  hangOnWall(scene, pictureFrame(photos[0], 0.86, 1.28), -0.95, 1.72, iglooR);
+  hangOnWall(scene, pictureFrame(photos[1], 0.8, 1.2), -2.45, 1.62, iglooR);
+  hangOnWall(scene, pictureFrame(photos[2], 0.92, 0.92), 1.95, 1.78, iglooR);
 
   add(scene, cube(0.16, 0.24, 0.16, 0x6fbe57, [1.3, 0.28, 0.2]));
   add(scene, cube(0.36, 0.08, 0.36, 0xfff8f2, [1.55, 0.2, 0.45]));

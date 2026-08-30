@@ -43,7 +43,7 @@ const input = createInput(document.body);
 const penguin = createPenguin();
 const ghost = createPenguin({ ghost: true });
 ghost.root.visible = false;
-const world = createWorld(scene);
+const world = await createWorld(scene);
 scene.add(penguin.root);
 scene.add(ghost.root);
 
