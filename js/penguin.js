@@ -153,28 +153,44 @@ function dragonFront() {
   const G = 0xffd000;
   const L = 0xffe566;
   const D = 0xc9a000;
-  const g = blank(16, 16, K);
-  for (let x = 0; x < 16; x += 1) {
-    g[0][x] = x % 2 ? G : D;
-    g[1][x] = x % 2 ? D : G;
-  }
-  stamp(g, 1, 4, [
-    [G, L, G],
-    [null, G, null],
-    [G, D, G],
+  const E = 0x1a1200;
+  const g = blank(24, 24, K);
+  g[1][7] = D;
+  g[1][8] = G;
+  g[1][15] = G;
+  g[1][16] = D;
+  g[2][8] = G;
+  g[2][15] = G;
+  stamp(g, 1, 7, [
+    [G, L, null, G],
+    [G, G, G, null],
+    [G, L, G, null],
+    [G, null, G, G],
+    [G, null, null, G],
   ]);
-  stamp(g, 8, 3, [
-    [null, null, G, L, G, null],
-    [null, G, D, G, L, G],
-    [null, G, G, G, D, null],
-    [G, L, G, D, G, null],
-    [null, G, D, G, L, G],
-    [null, G, G, L, G, null],
-    [G, D, G, G, D, G],
-    [null, G, L, G, G, null],
-    [null, null, G, D, G, G],
+  stamp(g, 15, 3, [
+    [null, G, L, G],
+    [G, D, G, G],
+    [G, G, null, D],
+    [null, G, G, null],
   ]);
-  return pixelFace(16, 16, g);
+  stamp(g, 11, 6, [
+    [null, null, G, G, D],
+    [null, G, L, G, null],
+    [G, G, G, null, null],
+    [D, G, null, null, null],
+    [G, L, G, null, null],
+    [null, G, G, G, null],
+  ]);
+  stamp(g, 6, 13, [
+    [null, G, null, G, null, null],
+    [G, L, G, L, G, D],
+    [G, E, L, G, G, G],
+    [L, G, G, G, D, null],
+    [null, G, D, G, null, null],
+    [G, null, null, G, null, null],
+  ]);
+  return pixelFace(24, 24, g);
 }
 
 function dragonBack() {
@@ -286,19 +302,19 @@ export function createPenguin(options = {}) {
   const coat = cube(0.52, 0.6, 0.4, 0xf4f0e8, [0, 0.02, 0.01]);
   const skirt = cube(0.54, 0.2, 0.42, 0xf4f0e8, [0, -0.28, 0.01]);
   const front = new THREE.Mesh(
-    new THREE.BoxGeometry(0.4, 0.5, 0.03),
+    new THREE.PlaneGeometry(0.44, 0.54),
     voxelMat(0xffffff, { map: giTexture(0xf4f0e8, 0xc9a227, 0x1a1a1a) }),
   );
-  front.position.set(0, 0.06, 0.22);
-  front.scale.set(1, 1, 1);
+  front.position.set(0, 0.06, 0.225);
   front.castShadow = true;
   const belt = cube(0.56, 0.1, 0.46, 0x76e013, [0, -0.08, 0.02]);
   const beltTip = cube(0.1, 0.08, 0.12, 0xc4122f, [0.24, -0.06, 0.22]);
   const back = new THREE.Mesh(
-    new THREE.BoxGeometry(0.4, 0.5, 0.03),
+    new THREE.PlaneGeometry(0.44, 0.54),
     voxelMat(0xffffff),
   );
-  back.position.set(0, 0.04, -0.2);
+  back.position.set(0, 0.04, -0.205);
+  back.rotation.y = Math.PI;
   const pantsL = cube(0.2, 0.34, 0.22, 0x0a0a0a, [0, -0.14, 0]);
   const pantsR = cube(0.2, 0.34, 0.22, 0x0a0a0a, [0, -0.14, 0]);
   const thighL = cube(0.02, 0.07, 0.05, 0x76e013, [-0.11, -0.1, 0]);

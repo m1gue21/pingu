@@ -79,7 +79,7 @@ export const outfits = [
     jacket: 0x0b0b0b,
     pants: 0x0b0b0b,
     stitch: 0xffd000,
-    belt: 0x161616,
+    belt: 0xffd000,
     patch: 0xffd000,
     accent: 0xffd000,
     bow: 0xffd000,
