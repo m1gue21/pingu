@@ -154,21 +154,26 @@ function dragonFront() {
   const L = 0xffe566;
   const D = 0xc9a000;
   const g = blank(16, 16, K);
-  for (let x = 0; x < 16; x += 1) g[0][x] = x % 2 ? G : D;
-  for (let x = 0; x < 16; x += 1) g[1][x] = x % 2 ? D : G;
-  stamp(g, 1, 3, [
-    [null, G, L, G, null, null],
-    [G, D, G, L, G, null],
-    [L, G, G, G, D, G],
-    [G, L, D, G, G, L],
-    [null, G, G, L, G, null],
-    [G, D, L, G, D, G],
-    [L, G, G, D, G, L],
-    [G, L, D, G, L, G],
+  for (let x = 0; x < 16; x += 1) {
+    g[0][x] = x % 2 ? G : D;
+    g[1][x] = x % 2 ? D : G;
+  }
+  stamp(g, 1, 4, [
+    [G, L, G],
+    [null, G, null],
+    [G, D, G],
   ]);
-  g[4][12] = G;
-  g[5][13] = L;
-  g[6][12] = G;
+  stamp(g, 8, 3, [
+    [null, null, G, L, G, null],
+    [null, G, D, G, L, G],
+    [null, G, G, G, D, null],
+    [G, L, G, D, G, null],
+    [null, G, D, G, L, G],
+    [null, G, G, L, G, null],
+    [G, D, G, G, D, G],
+    [null, G, L, G, G, null],
+    [null, null, G, D, G, G],
+  ]);
   return pixelFace(16, 16, g);
 }
 
