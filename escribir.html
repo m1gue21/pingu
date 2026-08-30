@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Escribirle a Val</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      body {
+        overflow: auto;
+        touch-action: auto;
+        padding: 28px 18px 48px;
+      }
+      form {
+        width: min(520px, 100%);
+        margin: 0 auto;
+        display: grid;
+        gap: 12px;
+      }
+      input,
+      textarea {
+        font: 16px Nunito, sans-serif;
+        padding: 12px;
+        border-radius: 14px;
+        border: 1px solid rgba(43, 28, 34, 0.12);
+        background: #fff8f2;
+      }
+      textarea {
+        min-height: 220px;
+      }
+      .note {
+        color: #8a6f76;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+    </style>
+  </head>
+  <body>
+    <form id="form">
+      <p class="kicker">Solo Miguel</p>
+      <h2>Nueva carta</h2>
+      <p class="note">
+        Si Val ya tiene el iglú abierto en este mismo link, la carta aparece
+        ahí y le sale el aviso. Si el juego está en otra computadora, guarda
+        también el archivo <code>letters.json</code> en la carpeta del iglú.
+      </p>
+      <input id="title" required placeholder="Título" />
+      <textarea id="body" required placeholder="Val,…"></textarea>
+      <button class="btn" type="submit">Dejar carta</button>
+      <p id="status" class="note"></p>
+    </form>
+    <script type="module">
+      import { loadLetters, saveLocalLetter } from "./js/letters.js";
+
+      const form = document.getElementById("form");
+      const status = document.getElementById("status");
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const letter = {
+          id: `carta-${Date.now()}`,
+          title: document.getElementById("title").value.trim(),
+          from: "Miguel",
+          date: new Date().toISOString().slice(0, 10),
+          body: document.getElementById("body").value.trim(),
+        };
+        saveLocalLetter(letter);
+        const all = await loadLetters();
+        const blob = new Blob(
+          [JSON.stringify({ letters: all }, null, 2)],
+          { type: "application/json" },
+        );
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "letters.json";
+        link.click();
+        status.textContent =
+          "Carta lista. Si ella está en este mismo navegador, ya le llega. El archivo descargado es para el iglú hospedado.";
+        form.reset();
+      });
+    </script>
+  </body>
+</html>

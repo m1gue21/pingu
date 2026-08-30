@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1"
+    />
+    <meta name="theme-color" content="#f6eee6" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>El iglú de Val</title>
+    <link rel="icon" href="assets/val-fighter.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Nunito:wght@600;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "./vendor/three.module.js"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="loader">
+      <img src="assets/val-fighter.png" alt="" />
+      <p>Preparando el iglú…</p>
+    </div>
+
+    <div id="hud">
+      <p class="brand">Iglú de Val</p>
+      <p class="hint">WASD o stick para moverte. En el tatami o la manta, camina o pulsa Salir.</p>
+      <p id="drill" hidden></p>
+    </div>
+
+    <div id="game"></div>
+
+    <div class="stick" id="stick">
+      <span id="stick-knob"></span>
+    </div>
+
+    <button id="prompt" type="button" hidden>Acercarse</button>
+    <div id="toast" hidden></div>
+
+    <section class="sheet" id="closet" hidden>
+      <div class="sheet-card">
+        <p class="kicker">Closet</p>
+        <h2>¿Qué se pone hoy?</h2>
+        <div id="outfits" class="outfits"></div>
+        <button id="closet-close" class="btn" type="button">Listo</button>
+      </div>
+    </section>
+
+    <section class="sheet" id="letter" hidden>
+      <article class="sheet-card letter">
+        <p class="kicker">Escritorio de Miguel</p>
+        <h2 id="letter-title">Carta</h2>
+        <p id="letter-meta" class="meta"></p>
+        <p id="letter-body" class="body"></p>
+        <div class="letter-nav">
+          <button id="letter-prev" type="button">Anterior</button>
+          <button id="letter-next" type="button">Siguiente</button>
+        </div>
+        <button id="letter-close" class="btn" type="button">Guardar carta</button>
+      </article>
+    </section>
+
+    <script type="module">
+      try {
+        await import("./js/game.js");
+      } catch (error) {
+        const line = document.querySelector("#loader p");
+        if (line) line.textContent = error.message;
+        console.error(error);
+      }
+    </script>
+  </body>
+</html>
