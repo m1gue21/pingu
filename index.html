@@ -55,17 +55,36 @@
       </div>
     </section>
 
-    <section class="sheet" id="letter" hidden>
-      <article class="sheet-card letter">
-        <p class="kicker">Escritorio de Miguel</p>
-        <h2 id="letter-title">Carta</h2>
-        <p id="letter-meta" class="meta"></p>
-        <p id="letter-body" class="body"></p>
-        <div class="letter-nav">
-          <button id="letter-prev" type="button">Anterior</button>
-          <button id="letter-next" type="button">Siguiente</button>
+    <section class="sheet" id="desk" hidden>
+      <article class="sheet-card desk">
+        <p class="kicker">Escritorio</p>
+        <div class="desk-tabs" role="tablist">
+          <button id="desk-tab-letters" class="is-on" type="button" role="tab">Cartas</button>
+          <button id="desk-tab-antojos" type="button" role="tab">Antojos</button>
         </div>
-        <button id="letter-close" class="btn" type="button">Guardar carta</button>
+
+        <div id="desk-letters" role="tabpanel">
+          <h2 id="letter-title">Carta</h2>
+          <p id="letter-meta" class="meta"></p>
+          <p id="letter-body" class="body"></p>
+          <div class="letter-nav">
+            <button id="letter-prev" type="button">Anterior</button>
+            <button id="letter-next" type="button">Siguiente</button>
+          </div>
+        </div>
+
+        <div id="desk-antojos" hidden role="tabpanel">
+          <h2>Mis antojos</h2>
+          <p class="meta">Lo que se te antoje, queda aquí.</p>
+          <p id="antojos-sync" class="meta sync-note" hidden>Lista sincronizada: Miguel la ve en su compu.</p>
+          <ul id="antojos-list" class="antojos-list"></ul>
+          <form id="antojos-form" class="antojos-form">
+            <input id="antojo-input" type="text" maxlength="120" placeholder="Sushi, Monster, abrazo…" />
+            <button type="submit">Añadir</button>
+          </form>
+        </div>
+
+        <button id="desk-close" class="btn" type="button">Cerrar</button>
       </article>
     </section>
 

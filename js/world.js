@@ -195,7 +195,7 @@ export async function createWorld(scene) {
   scene.add(desk);
   interactables.push({
     id: "desk",
-    label: "Leer carta de Miguel",
+    label: "Ir al escritorio",
     position: new THREE.Vector3(2.5, 0, 2.1),
     radius: 1.5,
     envelope,

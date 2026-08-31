@@ -9,14 +9,26 @@ import {
   markSeen,
   notifyNewLetter,
 } from "./letters.js";
+import {
+  loadAntojos,
+  addAntojo,
+  toggleAntojo,
+  removeAntojo,
+  isSyncEnabled,
+} from "./antojos.js";
 
 const root = document.getElementById("game");
 const promptBtn = document.getElementById("prompt");
 const closetSheet = document.getElementById("closet");
-const letterSheet = document.getElementById("letter");
+const deskSheet = document.getElementById("desk");
+const deskLetters = document.getElementById("desk-letters");
+const deskAntojos = document.getElementById("desk-antojos");
 const letterTitle = document.getElementById("letter-title");
 const letterMeta = document.getElementById("letter-meta");
 const letterBody = document.getElementById("letter-body");
+const antojosList = document.getElementById("antojos-list");
+const antojosForm = document.getElementById("antojos-form");
+const antojoInput = document.getElementById("antojo-input");
 const outfitsBox = document.getElementById("outfits");
 const loader = document.getElementById("loader");
 
@@ -69,8 +81,10 @@ input.look.x = 0.55;
 input.look.y = 0.08;
 let active = null;
 let letters = [];
+let antojos = [];
 let knownLatest = "";
 let letterIndex = 0;
+let deskTab = "letters";
 let bagSwing = 0;
 
 outfits.forEach((outfit) => {
@@ -127,6 +141,50 @@ function openCloset() {
   closetSheet.hidden = false;
 }
 
+function setDeskTab(tab) {
+  deskTab = tab;
+  const lettersOn = tab === "letters";
+  deskLetters.hidden = !lettersOn;
+  deskAntojos.hidden = lettersOn;
+  document.getElementById("desk-tab-letters").classList.toggle("is-on", lettersOn);
+  document.getElementById("desk-tab-antojos").classList.toggle("is-on", !lettersOn);
+}
+
+function renderAntojos() {
+  const syncNote = document.getElementById("antojos-sync");
+  if (syncNote) syncNote.hidden = !isSyncEnabled();
+  antojosList.replaceChildren();
+  if (!antojos.length) {
+    const empty = document.createElement("li");
+    empty.className = "empty";
+    empty.textContent = "Todavía no hay nada. Escribe el primero abajo.";
+    antojosList.appendChild(empty);
+    return;
+  }
+  antojos.forEach((item) => {
+    const row = document.createElement("li");
+    if (item.done) row.classList.add("is-done");
+    const check = document.createElement("input");
+    check.type = "checkbox";
+    check.checked = item.done;
+    check.addEventListener("change", async () => {
+      antojos = await toggleAntojo(item.id);
+      renderAntojos();
+    });
+    const text = document.createElement("span");
+    text.textContent = item.text;
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.textContent = "Quitar";
+    remove.addEventListener("click", async () => {
+      antojos = await removeAntojo(item.id);
+      renderAntojos();
+    });
+    row.append(check, text, remove);
+    antojosList.appendChild(row);
+  });
+}
+
 function renderLetter() {
   const letter = letters[letterIndex];
   if (!letter) {
@@ -143,13 +201,19 @@ function renderLetter() {
   if (desk?.envelope) desk.envelope.material.emissive?.setHex(0x000000);
 }
 
-function openLetter() {
+function openDesk(tab = "letters") {
+  setDeskTab(tab);
   if (!letters.length) letterIndex = 0;
-  else letterIndex = letters.length - 1;
+  else if (tab === "letters") letterIndex = letters.length - 1;
   renderLetter();
-  letterSheet.hidden = false;
+  renderAntojos();
+  deskSheet.hidden = false;
   penguin.setPose("read");
   player.poseUntil = performance.now() + 1200;
+}
+
+function openLetter() {
+  openDesk("letters");
 }
 
 function stopTraining() {
@@ -201,9 +265,22 @@ promptBtn.addEventListener("click", useActive);
 document.getElementById("closet-close").addEventListener("click", () => {
   closetSheet.hidden = true;
 });
-document.getElementById("letter-close").addEventListener("click", () => {
-  letterSheet.hidden = true;
+document.getElementById("desk-close").addEventListener("click", () => {
+  deskSheet.hidden = true;
   penguin.setPose("idle");
+});
+document.getElementById("desk-tab-letters").addEventListener("click", () => setDeskTab("letters"));
+document.getElementById("desk-tab-antojos").addEventListener("click", () => {
+  setDeskTab("antojos");
+  renderAntojos();
+});
+antojosForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const value = antojoInput.value.trim();
+  if (!value) return;
+  antojos = await addAntojo(value);
+  antojoInput.value = "";
+  renderAntojos();
 });
 document.getElementById("letter-prev").addEventListener("click", () => {
   if (!letters.length) return;
@@ -216,8 +293,9 @@ document.getElementById("letter-next").addEventListener("click", () => {
   renderLetter();
 });
 
-async function refreshLetters(announce) {
+async function refreshDesk(announce) {
   letters = await loadLetters();
+  antojos = await loadAntojos();
   const unread = latestUnread(letters);
   const desk = world.interactables.find((item) => item.id === "desk");
   if (desk?.envelope) {
@@ -232,10 +310,11 @@ async function refreshLetters(announce) {
     }
   }
   if (unread) knownLatest = unread.id;
+  if (!deskSheet.hidden && deskTab === "antojos") renderAntojos();
 }
 
-await refreshLetters(true);
-setInterval(() => refreshLetters(true), 12000);
+await refreshDesk(true);
+setInterval(() => refreshDesk(true), 12000);
 
 loader.hidden = true;
 
@@ -303,7 +382,9 @@ function tick() {
   }
 
   active = nearOf();
-  if (active) {
+  if (!deskSheet.hidden || !closetSheet.hidden) {
+    promptBtn.hidden = true;
+  } else if (active) {
     promptBtn.hidden = false;
     const unread = latestUnread(letters);
     if (player.training && (active.id === "mat" || active.id === "blanket")) {
@@ -316,7 +397,9 @@ function tick() {
   } else {
     promptBtn.hidden = true;
   }
-  if (input.consumeInteract()) useActive();
+  if (!deskSheet.hidden || !closetSheet.hidden) {
+    // no interactuar con el mundo mientras hay un panel abierto
+  } else if (input.consumeInteract()) useActive();
 
   const camYaw = input.look.x;
   const camPitch = 0.42 + input.look.y;

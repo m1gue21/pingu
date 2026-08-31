@@ -8,12 +8,16 @@ export function createInput(root) {
   let lastY = 0;
 
   window.addEventListener("keydown", (event) => {
+    const typing = event.target.closest("input, textarea, select, [contenteditable='true']");
+    const sheetOpen = document.querySelector(".sheet:not([hidden])");
+    if (typing || sheetOpen) return;
     keys.add(event.key.toLowerCase());
     if (event.key === "e" || event.key === "E" || event.key === "Enter") {
       interactQueued = true;
     }
   });
   window.addEventListener("keyup", (event) => {
+    if (event.target.closest("input, textarea, select, [contenteditable='true']")) return;
     keys.delete(event.key.toLowerCase());
   });
 
@@ -73,7 +77,7 @@ export function createInput(root) {
   };
 
   root.addEventListener("pointerdown", (event) => {
-    if (event.target.closest("button, a, .sheet, .letter, .stick")) return;
+    if (event.target.closest("button, a, .sheet, .desk, .stick, input, textarea, label, form")) return;
     onLookStart(event);
   });
   window.addEventListener("pointermove", onLookMove);
@@ -87,6 +91,9 @@ export function createInput(root) {
       return value;
     },
     sampleMove() {
+      const typing = document.activeElement?.closest("input, textarea, select, [contenteditable='true']");
+      const sheetOpen = document.querySelector(".sheet:not([hidden])");
+      if (typing || sheetOpen) return { x: 0, y: 0 };
       let x = move.x;
       let y = move.y;
       if (keys.has("a") || keys.has("arrowleft")) x -= 1;

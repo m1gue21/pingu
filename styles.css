@@ -171,10 +171,104 @@ h2 {
 
 .outfits button,
 .letter-nav button,
+.desk-tabs button,
+.antojos-form button,
 .btn {
   font: 800 14px Nunito, sans-serif;
   border: 0;
   cursor: pointer;
+}
+
+.desk-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.desk-tabs button {
+  flex: 1;
+  background: #f6eee6;
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.desk-tabs button.is-on {
+  background: var(--deep);
+  color: #fff8f2;
+}
+
+.antojos-list {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  max-height: 34vh;
+  overflow: auto;
+  display: grid;
+  gap: 8px;
+}
+
+.antojos-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f6eee6;
+  border-radius: 14px;
+  padding: 10px 12px;
+}
+
+.antojos-list li.empty {
+  justify-content: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.antojos-list li.is-done span {
+  text-decoration: line-through;
+  color: #9a8088;
+}
+
+.antojos-list input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--deep);
+}
+
+.antojos-list span {
+  flex: 1;
+  line-height: 1.35;
+}
+
+.antojos-list button {
+  background: transparent;
+  color: #b07a86;
+  font: 700 12px Nunito, sans-serif;
+  padding: 4px;
+}
+
+.antojos-form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.antojos-form input {
+  flex: 1;
+  font: 16px Nunito, sans-serif;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(43, 28, 34, 0.12);
+  background: #fff8f2;
+}
+
+.antojos-form button {
+  border-radius: 14px;
+  background: #f4b8c4;
+  color: var(--deep);
+  padding: 0 16px;
+}
+
+.sync-note {
+  color: #6f8f6a;
 }
 
 .outfits button {
@@ -206,6 +300,7 @@ h2 {
   color: #fff8f2;
 }
 
+.desk .body,
 .letter .body {
   white-space: pre-wrap;
   line-height: 1.55;
