@@ -170,19 +170,20 @@ body {
   flex-direction: column;
   gap: 0;
   overflow: hidden;
+  padding-bottom: max(16px, calc(env(safe-area-inset-bottom) + 8px));
 }
 
 #desk-letters {
   min-height: 0;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 #desk-close,
 #closet-close {
   flex-shrink: 0;
-  margin-top: 4px;
+  margin-top: 12px;
 }
 
 .kicker {
@@ -239,19 +240,26 @@ h2 {
   flex-direction: column;
   min-height: 0;
   flex: 1;
+  gap: 10px;
+  overflow: hidden;
 }
 
 .antojos-panel[hidden] {
   display: none !important;
 }
 
+.antojos-head {
+  flex-shrink: 0;
+}
+
 .antojos-head h2 {
-  margin-bottom: 0;
+  margin: 0;
+  font-size: 24px;
 }
 
 .antojos-title-row {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 4px;
@@ -270,18 +278,33 @@ h2 {
 
 .antojos-scroll {
   position: relative;
-  flex: 1;
-  min-height: 140px;
-  max-height: 34vh;
-  margin-bottom: 10px;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 28vh;
+  overflow: hidden;
+}
+
+.antojos-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  display: grid;
+  gap: 8px;
+  align-content: start;
 }
 
 .antojos-pager {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
   flex-shrink: 0;
+  position: relative;
+  z-index: 3;
+  background: var(--paper);
+  padding-top: 2px;
 }
 
 .antojos-pager[hidden] {
@@ -310,16 +333,14 @@ h2 {
   color: var(--muted);
 }
 
-.antojos-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
-  display: grid;
+.antojos-form {
+  display: flex;
   gap: 8px;
-  align-content: start;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 3;
+  background: var(--paper);
+  margin: 0;
 }
 
 .antojos-list li {
@@ -371,13 +392,6 @@ h2 {
   padding: 10px 12px;
   border-radius: 999px;
   min-height: 40px;
-  flex-shrink: 0;
-}
-
-.antojos-form {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 14px;
   flex-shrink: 0;
 }
 

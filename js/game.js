@@ -46,7 +46,7 @@ const letterNext = document.getElementById("letter-next");
 const outfitsBox = document.getElementById("outfits");
 const loader = document.getElementById("loader");
 
-const ANTOJOS_PAGE_SIZE = 5;
+const ANTOJOS_PAGE_SIZE = 4;
 
 function on(el, event, handler) {
   if (el) el.addEventListener(event, handler);
