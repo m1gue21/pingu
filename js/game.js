@@ -29,8 +29,21 @@ const letterBody = document.getElementById("letter-body");
 const antojosList = document.getElementById("antojos-list");
 const antojosForm = document.getElementById("antojos-form");
 const antojoInput = document.getElementById("antojo-input");
+const antojoSubmit = document.getElementById("antojo-submit");
+const antojosBusy = document.getElementById("antojos-busy");
+const antojosBusyText = document.getElementById("antojos-busy-text");
+const deskClose = document.getElementById("desk-close");
+const deskTabLetters = document.getElementById("desk-tab-letters");
+const deskTabAntojos = document.getElementById("desk-tab-antojos");
+const closetClose = document.getElementById("closet-close");
+const letterPrev = document.getElementById("letter-prev");
+const letterNext = document.getElementById("letter-next");
 const outfitsBox = document.getElementById("outfits");
 const loader = document.getElementById("loader");
+
+function on(el, event, handler) {
+  if (el) el.addEventListener(event, handler);
+}
 
 const renderer = new THREE.WebGLRenderer({
   antialias: true,
@@ -86,6 +99,18 @@ let knownLatest = "";
 let letterIndex = 0;
 let deskTab = "letters";
 let bagSwing = 0;
+let antojosBusyLock = false;
+
+function setAntojosBusy(on, message = "Guardando…") {
+  antojosBusyLock = on;
+  if (antojosBusy) antojosBusy.hidden = !on;
+  if (antojosBusyText && on) antojosBusyText.textContent = message;
+  if (antojoInput) antojoInput.disabled = on;
+  if (antojoSubmit) {
+    antojoSubmit.disabled = on;
+    antojoSubmit.textContent = on ? "…" : "Añadir";
+  }
+}
 
 outfits.forEach((outfit) => {
   const button = document.createElement("button");
@@ -144,13 +169,14 @@ function openCloset() {
 function setDeskTab(tab) {
   deskTab = tab;
   const lettersOn = tab === "letters";
-  deskLetters.hidden = !lettersOn;
-  deskAntojos.hidden = lettersOn;
-  document.getElementById("desk-tab-letters").classList.toggle("is-on", lettersOn);
-  document.getElementById("desk-tab-antojos").classList.toggle("is-on", !lettersOn);
+  if (deskLetters) deskLetters.hidden = !lettersOn;
+  if (deskAntojos) deskAntojos.hidden = lettersOn;
+  deskTabLetters?.classList.toggle("is-on", lettersOn);
+  deskTabAntojos?.classList.toggle("is-on", !lettersOn);
 }
 
 function renderAntojos() {
+  if (!antojosList) return;
   const syncNote = document.getElementById("antojos-sync");
   if (syncNote) syncNote.hidden = !isSyncEnabled();
   antojosList.replaceChildren();
@@ -167,9 +193,20 @@ function renderAntojos() {
     const check = document.createElement("input");
     check.type = "checkbox";
     check.checked = item.done;
+    check.setAttribute("aria-label", "Marcar antojo");
     check.addEventListener("change", async () => {
-      antojos = await toggleAntojo(item.id);
-      renderAntojos();
+      if (antojosBusyLock) {
+        check.checked = item.done;
+        return;
+      }
+      row.classList.add("is-busy");
+      setAntojosBusy(true, "Actualizando…");
+      try {
+        antojos = await toggleAntojo(item.id);
+      } finally {
+        setAntojosBusy(false);
+        renderAntojos();
+      }
     });
     const text = document.createElement("span");
     text.textContent = item.text;
@@ -177,8 +214,15 @@ function renderAntojos() {
     remove.type = "button";
     remove.textContent = "Quitar";
     remove.addEventListener("click", async () => {
-      antojos = await removeAntojo(item.id);
-      renderAntojos();
+      if (antojosBusyLock) return;
+      row.classList.add("is-busy");
+      setAntojosBusy(true, "Eliminando…");
+      try {
+        antojos = await removeAntojo(item.id);
+      } finally {
+        setAntojosBusy(false);
+        renderAntojos();
+      }
     });
     row.append(check, text, remove);
     antojosList.appendChild(row);
@@ -186,6 +230,7 @@ function renderAntojos() {
 }
 
 function renderLetter() {
+  if (!letterTitle || !letterMeta || !letterBody) return;
   const letter = letters[letterIndex];
   if (!letter) {
     letterTitle.textContent = "El escritorio está vacío";
@@ -202,6 +247,7 @@ function renderLetter() {
 }
 
 function openDesk(tab = "letters") {
+  if (!deskSheet) return;
   setDeskTab(tab);
   if (!letters.length) letterIndex = 0;
   else if (tab === "letters") letterIndex = letters.length - 1;
@@ -261,33 +307,41 @@ function useActive() {
   if (active.id === "desk") openLetter();
 }
 
-promptBtn.addEventListener("click", useActive);
-document.getElementById("closet-close").addEventListener("click", () => {
-  closetSheet.hidden = true;
+on(promptBtn, "click", useActive);
+on(closetClose, "click", () => {
+  if (closetSheet) closetSheet.hidden = true;
 });
-document.getElementById("desk-close").addEventListener("click", () => {
-  deskSheet.hidden = true;
+on(deskClose, "click", () => {
+  if (deskSheet) deskSheet.hidden = true;
   penguin.setPose("idle");
+  if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
 });
-document.getElementById("desk-tab-letters").addEventListener("click", () => setDeskTab("letters"));
-document.getElementById("desk-tab-antojos").addEventListener("click", () => {
+on(deskTabLetters, "click", () => setDeskTab("letters"));
+on(deskTabAntojos, "click", () => {
   setDeskTab("antojos");
   renderAntojos();
 });
-antojosForm.addEventListener("submit", async (event) => {
+on(antojosForm, "submit", async (event) => {
   event.preventDefault();
+  if (antojosBusyLock || !antojoInput) return;
   const value = antojoInput.value.trim();
   if (!value) return;
-  antojos = await addAntojo(value);
-  antojoInput.value = "";
-  renderAntojos();
+  setAntojosBusy(true, "Añadiendo…");
+  try {
+    antojos = await addAntojo(value);
+    antojoInput.value = "";
+  } finally {
+    setAntojosBusy(false);
+    renderAntojos();
+    antojoInput.focus();
+  }
 });
-document.getElementById("letter-prev").addEventListener("click", () => {
+on(letterPrev, "click", () => {
   if (!letters.length) return;
   letterIndex = (letterIndex - 1 + letters.length) % letters.length;
   renderLetter();
 });
-document.getElementById("letter-next").addEventListener("click", () => {
+on(letterNext, "click", () => {
   if (!letters.length) return;
   letterIndex = (letterIndex + 1) % letters.length;
   renderLetter();
@@ -310,13 +364,15 @@ async function refreshDesk(announce) {
     }
   }
   if (unread) knownLatest = unread.id;
-  if (!deskSheet.hidden && deskTab === "antojos") renderAntojos();
+  if (deskSheet && !deskSheet.hidden && deskTab === "antojos" && !antojosBusyLock) {
+    renderAntojos();
+  }
 }
 
 await refreshDesk(true);
 setInterval(() => refreshDesk(true), 12000);
 
-loader.hidden = true;
+if (loader) loader.hidden = true;
 
 const clock = new THREE.Clock();
 function tick() {
@@ -382,7 +438,8 @@ function tick() {
   }
 
   active = nearOf();
-  if (!deskSheet.hidden || !closetSheet.hidden) {
+  const sheetOpen = (deskSheet && !deskSheet.hidden) || (closetSheet && !closetSheet.hidden);
+  if (sheetOpen) {
     promptBtn.hidden = true;
   } else if (active) {
     promptBtn.hidden = false;
@@ -397,9 +454,7 @@ function tick() {
   } else {
     promptBtn.hidden = true;
   }
-  if (!deskSheet.hidden || !closetSheet.hidden) {
-    // no interactuar con el mundo mientras hay un panel abierto
-  } else if (input.consumeInteract()) useActive();
+  if (!sheetOpen && input.consumeInteract()) useActive();
 
   const camYaw = input.look.x;
   const camPitch = 0.42 + input.look.y;

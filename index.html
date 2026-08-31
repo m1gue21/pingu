@@ -16,7 +16,7 @@
       href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Nunito:wght@600;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=antojos2" />
     <script type="importmap">
       {
         "imports": {
@@ -73,14 +73,30 @@
           </div>
         </div>
 
-        <div id="desk-antojos" hidden role="tabpanel">
-          <h2>Mis antojos</h2>
-          <p class="meta">Lo que se te antoje, queda aquí.</p>
-          <p id="antojos-sync" class="meta sync-note" hidden>Lista sincronizada: Miguel la ve en su compu.</p>
-          <ul id="antojos-list" class="antojos-list"></ul>
+        <div id="desk-antojos" class="antojos-panel" hidden role="tabpanel">
+          <div class="antojos-head">
+            <h2>Mis antojos</h2>
+            <p class="meta">Lo que se te antoje, queda aquí.</p>
+            <p id="antojos-sync" class="meta sync-note" hidden>Sincronizado · Miguel también lo ve</p>
+          </div>
+          <div class="antojos-scroll">
+            <ul id="antojos-list" class="antojos-list"></ul>
+            <div id="antojos-busy" class="antojos-busy" hidden>
+              <span class="spinner" aria-hidden="true"></span>
+              <p id="antojos-busy-text">Guardando…</p>
+            </div>
+          </div>
           <form id="antojos-form" class="antojos-form">
-            <input id="antojo-input" type="text" maxlength="120" placeholder="Sushi, Monster, abrazo…" />
-            <button type="submit">Añadir</button>
+            <input
+              id="antojo-input"
+              type="text"
+              maxlength="120"
+              enterkeyhint="done"
+              autocomplete="off"
+              autocorrect="on"
+              placeholder="Sushi, Monster, abrazo…"
+            />
+            <button id="antojo-submit" type="submit">Añadir</button>
           </form>
         </div>
 
@@ -90,10 +106,10 @@
 
     <script type="module">
       try {
-        await import("./js/game.js");
+        await import("./js/game.js?v=antojos2");
       } catch (error) {
         const line = document.querySelector("#loader p");
-        if (line) line.textContent = error.message;
+        if (line) line.textContent = error.message || String(error);
         console.error(error);
       }
     </script>

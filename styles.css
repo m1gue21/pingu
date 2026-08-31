@@ -21,7 +21,17 @@ body {
   color: var(--ink);
   font-family: Nunito, sans-serif;
   touch-action: none;
+  -webkit-user-select: none;
   user-select: none;
+}
+
+.sheet,
+.sheet input,
+.sheet textarea,
+.sheet button {
+  touch-action: manipulation;
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 #game,
@@ -134,20 +144,45 @@ body {
   background: rgba(43, 28, 34, 0.28);
   display: grid;
   place-items: end center;
-  padding: 16px;
+  padding: 12px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
 }
 
 .sheet[hidden],
 #prompt[hidden],
-#toast[hidden] {
+#toast[hidden],
+.antojos-busy[hidden] {
   display: none;
 }
 
 .sheet-card {
   width: min(520px, 100%);
+  max-height: min(88vh, 720px);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
   background: var(--paper);
   border-radius: 28px 28px 18px 18px;
-  padding: 22px 20px max(20px, env(safe-area-inset-bottom));
+  padding: 20px 18px max(18px, env(safe-area-inset-bottom));
+}
+
+.sheet-card.desk {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+}
+
+#desk-letters {
+  min-height: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 8px;
+}
+
+#desk-close,
+#closet-close {
+  flex-shrink: 0;
+  margin-top: 4px;
 }
 
 .kicker {
@@ -182,11 +217,13 @@ h2 {
 .desk-tabs {
   display: flex;
   gap: 8px;
-  margin-bottom: 14px;
+  margin: 8px 0 14px;
+  flex-shrink: 0;
 }
 
 .desk-tabs button {
   flex: 1;
+  min-height: 44px;
   background: #f6eee6;
   border-radius: 12px;
   padding: 10px;
@@ -197,29 +234,57 @@ h2 {
   color: #fff8f2;
 }
 
+.antojos-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+}
+
+.antojos-panel[hidden] {
+  display: none !important;
+}
+
+.antojos-head h2 {
+  margin-bottom: 4px;
+}
+
+.antojos-scroll {
+  position: relative;
+  flex: 1;
+  min-height: 140px;
+  max-height: 38vh;
+  margin-bottom: 12px;
+}
+
 .antojos-list {
   list-style: none;
-  margin: 0 0 12px;
+  margin: 0;
   padding: 0;
-  max-height: 34vh;
+  height: 100%;
   overflow: auto;
+  -webkit-overflow-scrolling: touch;
   display: grid;
   gap: 8px;
+  align-content: start;
 }
 
 .antojos-list li {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   background: #f6eee6;
-  border-radius: 14px;
-  padding: 10px 12px;
+  border-radius: 16px;
+  padding: 12px 14px;
+  min-height: 52px;
 }
 
 .antojos-list li.empty {
   justify-content: center;
   color: var(--muted);
   font-size: 14px;
+  min-height: 72px;
+  text-align: center;
 }
 
 .antojos-list li.is-done span {
@@ -227,44 +292,99 @@ h2 {
   color: #9a8088;
 }
 
+.antojos-list li.is-busy {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
 .antojos-list input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
   accent-color: var(--deep);
 }
 
 .antojos-list span {
   flex: 1;
-  line-height: 1.35;
+  line-height: 1.4;
+  font-size: 15px;
+  word-break: break-word;
 }
 
 .antojos-list button {
-  background: transparent;
-  color: #b07a86;
-  font: 700 12px Nunito, sans-serif;
-  padding: 4px;
+  background: rgba(176, 122, 134, 0.12);
+  color: #9a5b68;
+  font: 800 12px Nunito, sans-serif;
+  padding: 10px 12px;
+  border-radius: 999px;
+  min-height: 40px;
+  flex-shrink: 0;
 }
 
 .antojos-form {
   display: flex;
   gap: 8px;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
+  flex-shrink: 0;
 }
 
 .antojos-form input {
   flex: 1;
+  min-width: 0;
   font: 16px Nunito, sans-serif;
-  padding: 12px;
-  border-radius: 14px;
+  padding: 14px 14px;
+  border-radius: 16px;
   border: 1px solid rgba(43, 28, 34, 0.12);
   background: #fff8f2;
+  color: var(--ink);
 }
 
 .antojos-form button {
-  border-radius: 14px;
+  border-radius: 16px;
   background: #f4b8c4;
   color: var(--deep);
-  padding: 0 16px;
+  padding: 0 18px;
+  min-height: 48px;
+  min-width: 88px;
+}
+
+.antojos-form button:disabled,
+.antojos-form input:disabled {
+  opacity: 0.55;
+}
+
+.antojos-busy {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: 10px;
+  background: rgba(255, 248, 242, 0.82);
+  border-radius: 16px;
+  text-align: center;
+  z-index: 2;
+}
+
+.antojos-busy p {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--deep);
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  margin: 0 auto;
+  border: 3px solid rgba(201, 107, 128, 0.2);
+  border-top-color: var(--deep);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .sync-note {
