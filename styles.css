@@ -246,15 +246,68 @@ h2 {
 }
 
 .antojos-head h2 {
+  margin-bottom: 0;
+}
+
+.antojos-title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 4px;
+}
+
+.antojos-count {
+  flex-shrink: 0;
+  min-width: 28px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #f4b8c4;
+  color: var(--deep);
+  font: 800 13px Nunito, sans-serif;
+  text-align: center;
 }
 
 .antojos-scroll {
   position: relative;
   flex: 1;
   min-height: 140px;
-  max-height: 38vh;
+  max-height: 34vh;
+  margin-bottom: 10px;
+}
+
+.antojos-pager {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.antojos-pager[hidden] {
+  display: none !important;
+}
+
+.antojos-pager button {
+  flex: 1;
+  min-height: 44px;
+  border: 0;
+  border-radius: 12px;
+  background: #f6eee6;
+  color: var(--ink);
+  font: 800 13px Nunito, sans-serif;
+  cursor: pointer;
+}
+
+.antojos-pager button:disabled {
+  opacity: 0.4;
+}
+
+.antojos-page {
+  min-width: 54px;
+  text-align: center;
+  font: 800 13px Nunito, sans-serif;
+  color: var(--muted);
 }
 
 .antojos-list {

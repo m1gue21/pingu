@@ -16,7 +16,7 @@
       href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Nunito:wght@600;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=antojos2" />
+    <link rel="stylesheet" href="styles.css?v=antojos3" />
     <script type="importmap">
       {
         "imports": {
@@ -75,7 +75,10 @@
 
         <div id="desk-antojos" class="antojos-panel" hidden role="tabpanel">
           <div class="antojos-head">
-            <h2>Mis antojos</h2>
+            <div class="antojos-title-row">
+              <h2>Mis antojos</h2>
+              <p id="antojos-count" class="antojos-count">0</p>
+            </div>
             <p class="meta">Lo que se te antoje, queda aquí.</p>
             <p id="antojos-sync" class="meta sync-note" hidden>Sincronizado · Miguel también lo ve</p>
           </div>
@@ -85,6 +88,11 @@
               <span class="spinner" aria-hidden="true"></span>
               <p id="antojos-busy-text">Guardando…</p>
             </div>
+          </div>
+          <div id="antojos-pager" class="antojos-pager" hidden>
+            <button id="antojos-prev" type="button">Anterior</button>
+            <p id="antojos-page" class="antojos-page">1 / 1</p>
+            <button id="antojos-next" type="button">Siguiente</button>
           </div>
           <form id="antojos-form" class="antojos-form">
             <input
@@ -106,7 +114,7 @@
 
     <script type="module">
       try {
-        await import("./js/game.js?v=antojos2");
+        await import("./js/game.js?v=antojos3");
       } catch (error) {
         const line = document.querySelector("#loader p");
         if (line) line.textContent = error.message || String(error);

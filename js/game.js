@@ -32,6 +32,11 @@ const antojoInput = document.getElementById("antojo-input");
 const antojoSubmit = document.getElementById("antojo-submit");
 const antojosBusy = document.getElementById("antojos-busy");
 const antojosBusyText = document.getElementById("antojos-busy-text");
+const antojosCount = document.getElementById("antojos-count");
+const antojosPager = document.getElementById("antojos-pager");
+const antojosPage = document.getElementById("antojos-page");
+const antojosPrev = document.getElementById("antojos-prev");
+const antojosNext = document.getElementById("antojos-next");
 const deskClose = document.getElementById("desk-close");
 const deskTabLetters = document.getElementById("desk-tab-letters");
 const deskTabAntojos = document.getElementById("desk-tab-antojos");
@@ -40,6 +45,8 @@ const letterPrev = document.getElementById("letter-prev");
 const letterNext = document.getElementById("letter-next");
 const outfitsBox = document.getElementById("outfits");
 const loader = document.getElementById("loader");
+
+const ANTOJOS_PAGE_SIZE = 5;
 
 function on(el, event, handler) {
   if (el) el.addEventListener(event, handler);
@@ -100,6 +107,7 @@ let letterIndex = 0;
 let deskTab = "letters";
 let bagSwing = 0;
 let antojosBusyLock = false;
+let antojosPageIndex = 0;
 
 function setAntojosBusy(on, message = "Guardando…") {
   antojosBusyLock = on;
@@ -110,6 +118,17 @@ function setAntojosBusy(on, message = "Guardando…") {
     antojoSubmit.disabled = on;
     antojoSubmit.textContent = on ? "…" : "Añadir";
   }
+  if (antojosPrev) antojosPrev.disabled = on;
+  if (antojosNext) antojosNext.disabled = on;
+}
+
+function antojosPageCount() {
+  return Math.max(1, Math.ceil(antojos.length / ANTOJOS_PAGE_SIZE));
+}
+
+function clampAntojosPage() {
+  antojosPageIndex = Math.min(antojosPageIndex, antojosPageCount() - 1);
+  antojosPageIndex = Math.max(0, antojosPageIndex);
 }
 
 outfits.forEach((outfit) => {
@@ -179,15 +198,35 @@ function renderAntojos() {
   if (!antojosList) return;
   const syncNote = document.getElementById("antojos-sync");
   if (syncNote) syncNote.hidden = !isSyncEnabled();
+  clampAntojosPage();
+
+  const total = antojos.length;
+  const done = antojos.filter((item) => item.done).length;
+  if (antojosCount) {
+    if (!total) antojosCount.textContent = "0";
+    else if (done) antojosCount.textContent = `${total} · ${done} hechos`;
+    else antojosCount.textContent = String(total);
+  }
+
+  const pages = antojosPageCount();
+  const showPager = total > ANTOJOS_PAGE_SIZE;
+  if (antojosPager) antojosPager.hidden = !showPager;
+  if (antojosPage) antojosPage.textContent = `${antojosPageIndex + 1} / ${pages}`;
+  if (antojosPrev) antojosPrev.disabled = antojosBusyLock || antojosPageIndex <= 0;
+  if (antojosNext) antojosNext.disabled = antojosBusyLock || antojosPageIndex >= pages - 1;
+
   antojosList.replaceChildren();
-  if (!antojos.length) {
+  if (!total) {
     const empty = document.createElement("li");
     empty.className = "empty";
     empty.textContent = "Todavía no hay nada. Escribe el primero abajo.";
     antojosList.appendChild(empty);
     return;
   }
-  antojos.forEach((item) => {
+
+  const start = antojosPageIndex * ANTOJOS_PAGE_SIZE;
+  const pageItems = antojos.slice(start, start + ANTOJOS_PAGE_SIZE);
+  pageItems.forEach((item) => {
     const row = document.createElement("li");
     if (item.done) row.classList.add("is-done");
     const check = document.createElement("input");
@@ -330,11 +369,22 @@ on(antojosForm, "submit", async (event) => {
   try {
     antojos = await addAntojo(value);
     antojoInput.value = "";
+    antojosPageIndex = antojosPageCount() - 1;
   } finally {
     setAntojosBusy(false);
     renderAntojos();
     antojoInput.focus();
   }
+});
+on(antojosPrev, "click", () => {
+  if (antojosBusyLock || antojosPageIndex <= 0) return;
+  antojosPageIndex -= 1;
+  renderAntojos();
+});
+on(antojosNext, "click", () => {
+  if (antojosBusyLock || antojosPageIndex >= antojosPageCount() - 1) return;
+  antojosPageIndex += 1;
+  renderAntojos();
 });
 on(letterPrev, "click", () => {
   if (!letters.length) return;
